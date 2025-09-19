@@ -1,0 +1,11 @@
+code .gitattributes
+
+*.py linguist-language=Python
+
+accounts/templates/** linguist-language=HTML
+*.html linguist-language=HTML
+
+*.css linguist-language=CSS
+*.js linguist-language=JavaScript
+
+**/migrations/** linguist-vendored
