@@ -1,0 +1,84 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+<link rel="stylesheet" href="{% static 'accounts/style.css' %}">
+<script src="{% static 'accounts/style1.js' %}"></script>
+<body class="home-body">
+    <form id="amountForm">
+    <h5>Enter Deposit Amount:</h5>
+        <div class="se-de">
+            <input type="number" id="amount" name="amount" min="300" max="100000" class="form-control deposit-box" placeholder="Enter Deposit Amount" required/>
+            <button type="submit" class="btn btn-primary">Deposit</button>
+        </div>
+        <p class="amt">Min : 300 , Max : 100000</p>
+        <br>
+    </form>
+
+    
+    <div id="fullForm" class="sub-form">
+        <div class="bank-det">
+            <h5>Bank Account: </h5>
+            <div class="bank-container">
+                <div>Bank Name : Bank Of Baroda</div>
+                <div>A/C No. : 93290100014066</div>
+                <div>IFSC Code : BARB0DBKAMR</div>
+                <div>Account Name : Urmik Dobariya</div>
+                <div>Min Amount : 300</div>
+                <div>Max Amount : 100000</div>
+            </div>
+        </div>
+        <div class="form-2">    
+            <form method="POST" action="{% url 'deposit_submit' %}" class="dep-form">
+                {% csrf_token %}
+                <input type="hidden" name="username" value="{{ account.username }}">
+                Amount : <input type="number" name="amount" id="finalAmount" readonly><br>
+                UTR : <input type="number" name="UTR" placeholder="UTR Number" required><br>
+                Payment Proof : <input type="file" name="payment_SS" required><br>
+                <button type="submit">Submit Deposit Request</button>
+            </form>
+        </div>  
+    </div>
+
+    
+
+    {% if deposit %}
+        <br>
+        <h6>Previous Deposits : </h6>
+        <div class="container">
+        <div class="table-wrap">
+        <div class="table-scroll">
+            <table aria-label="Sample 4-column table">
+            <thead>
+                <tr>
+                <th>DEPOSIT ID</th>
+                <th>AMOUNT</th>
+                <th>UTR</th>
+                <th>STATUS</th>
+                <th>DATE</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for d in deposit %}
+                    <tr>
+                    <td>{{ d.deposite_id }}</td>
+                    <td>{{ d.amount }}</td>
+                    <td>{{ d.UTR }}</td>
+                    {% if d.status == "pending" %}
+                        <td><div class="pending-box">Pending</div></td>
+                    {% elif d.status == "approved" %}
+                        <td><div class="approved-box">Approved</div></td>
+                    {% else %}
+                        <td><div class="reject-box">Reject</div></td>
+                    {% endif %}
+                    <td>{{ d.created_at }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+            </table>
+        </div>
+        </div>
+        </div>
+    {% endif %}
+</body>
+{% endblock content %}

@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+{% load static %}
+{% load math_extras %}
+{% block content %}
+<link rel="stylesheet" href="{% static 'accounts/style.css' %}">
+<body class="home-body">
+    {% if settledBets %}
+        <br>
+        <h6>Settled Bets : </h6>
+        <div class="container">
+        <div class="table-wrap">
+        <div class="table-scroll">
+            <table aria-label="Sample 4-column table">
+            <thead>
+                <tr>
+                <th>BET ID</th>
+                <th>MATCH</th>
+                <th>ODDS</th>
+                <th>BET TEAM</th>
+                <th>BET AMOUNT</th>
+                <th>WIN AMOUNT</th>
+                <th>STATUS</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for ab in settledBets %}
+                    <tr>
+                    <td>{{ ab.bet_id }}</td>
+                    <td><a href="{% url 'matchs' ab.match_id %}">{{ ab.match_name }}</a></td>
+                    <td>{{ ab.win_amount|divide:ab.bet_amount|floatformat:2 }}</td>
+                    {% if ab.bet_team == "Team1" %}
+                        <td>{{ ab.match_team1 }}</td>
+                    {% else %}
+                        <td>{{ ab.match_team2 }}</td>
+                    {% endif %}
+                    <td>{{ ab.bet_amount }}</td>
+                    <td>{{ ab.win_amount }}</td>
+                    {% if ab.bet_status == "Active" %}
+                        <td><div class="pending-box">Active</div></td>
+                    {% elif ab.bet_status == "Settled" %}
+                        <td><div class="approved-box">Settled</div></td>
+                    {% endif %}
+                    </tr>
+                {% endfor %}
+            </tbody>
+            </table>
+        </div>
+        </div>
+        </div>
+    {% else %}
+        <br>
+        <div style="display: flex; justify-content: center; font-size: 15px;">No Any Settled Bets Available.</div>
+    {% endif %}
+</body>
+{% endblock content %}

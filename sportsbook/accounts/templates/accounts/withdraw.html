@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+<link rel="stylesheet" href="{% static 'accounts/style.css' %}">
+<script src="{% static 'accounts/style1.js' %}"></script>
+<body class="home-body">
+    <form method="POST" action="{% url 'withdraw_submit' %}">
+        {% csrf_token %}
+        <h5>Enter Withdraw Amount:</h5>
+        <input type="hidden" name="username" value="{{ account.username }}">
+        <input type="number" name="amount" min="500" max="{{ account.balance }}" class="form-control deposit-box" placeholder="Enter Withdraw Amount" required>
+        <p class="amt">Min : 500</p>
+        <div class="field-2">
+            <div class="fields">
+                <h6>A/C No. :</h6>
+                <input type="number" name="ac" class="form-control in-fields" placeholder="Enter Account No." required>
+            </div>
+            <div class="fields">
+                <h6>IFSC Code :</h6>
+                <input type="text" name="ifsc" class="form-control in-fields" placeholder="Enter IFSC code" required>
+            </div>
+        </div>
+        <div class="field-3">
+            <div class="fields">
+                <h6>Account Holder Name :</h6>
+                <input type="text" name="hn" class="form-control in-fields" placeholder="Enter Account Holder Name" required>
+            </div>
+            <div class="fields">
+                <h6>Bank Name :</h6>
+                <input type="text" name="bn" class="form-control in-fields" placeholder="Enter Bank Name" required>
+            </div>
+        </div>
+        <button type="submit" class="sw-btn">Submit Withdraw Request</button>
+    </form>
+
+    {% if withdraw %}
+        <br>
+        <h6>Previous Withdrawals : </h6>
+        <div class="container">
+        <div class="table-wrap">
+        <div class="table-scroll">
+            <table aria-label="Sample 4-column table">
+            <thead>
+                <tr>
+                <th>WITHDRAW ID</th>
+                <th>AMOUNT</th>
+                <th>STATUS</th>
+                <th>DATE</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for w in withdraw %}
+                    <tr>
+                    <td>{{ w.withdraw_id }}</td>
+                    <td>{{ w.amount }}</td>
+                    {% if w.status == "pending" %}
+                        <td><div class="pending-box">Pending</div></td>
+                    {% elif w.status == "approved" %}
+                        <td><div class="approved-box">Approved</div></td>
+                    {% else %}
+                        <td><div class="reject-box">Reject</div></td>
+                    {% endif %}
+                    <td>{{ w.created_at }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+            </table>
+        </div>
+        </div>
+        </div>
+    {% endif %}
+</body>
+{% endblock content %}

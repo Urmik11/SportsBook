@@ -1,0 +1,95 @@
+{% extends "base.html" %}
+{% load static %}
+{% block content %}
+<head>
+  <title>Register</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" integrity="..." crossorigin="anonymous"/>
+  <link rel="stylesheet" href="{% static 'accounts/style.css' %}">
+</head>
+<body class="home-body">
+  <div class="container">
+    <div class="row justify-content-center">
+      <div class="bg-light-dark rounded shadow-sm reg-cont">
+        <h2 class="text-center mb-4 text-light">Create an Account</h2>
+
+        {% if messages %}
+          {% for message in messages %}
+            <div class="alert alert-success">{{ message }}</div>
+          {% endfor %}
+        {% endif %}
+
+        <form id="registerForm" method="post" novalidate>
+          {% csrf_token %}
+          <div class="mb-2">
+            {{ form.username }}
+            {% if form.username.errors %}
+              <small class="text-danger">
+                {% for err in form.username.errors %}{{ err }}{% if not forloop.last %}<br>{% endif %}{% endfor %}
+              </small>
+            {% endif %}
+          </div>
+
+          <div class="mb-2">
+            {{ form.email }}
+            {% if form.email.errors %}
+              <small class="text-danger">
+                {% for err in form.email.errors %}{{ err }}{% if not forloop.last %}<br>{% endif %}{% endfor %}
+              </small>
+            {% endif %}
+          </div>
+
+          <div class="mb-2">
+            {{ form.password1 }}
+            {% if form.password1.errors %}
+              <small class="text-danger">
+                {% for err in form.password1.errors %}{{ err }}{% if not forloop.last %}<br>{% endif %}{% endfor %}
+              </small>
+            {% endif %}
+          </div>
+          <div class="mb-4">
+            {{ form.password2 }}
+            {% if form.password2.errors %}
+              <small class="text-danger">
+                {% for err in form.password2.errors %}{{ err }}{% if not forloop.last %}<br>{% endif %}{% endfor %}
+              </small>
+            {% endif %}
+          </div>
+
+          <div id="formErrors">
+            {% if form.non_field_errors %}
+              <div class="alert alert-danger">
+                {% for err in form.non_field_errors %}{{ err }}{% if not forloop.last %}<br>{% endif %}{% endfor %}
+              </div>
+            {% endif %}
+          </div>
+
+          <div class="text-center reg-reg-btn">
+            <button id="submitBtn" type="submit" class="btn btn-primary reg-btn">
+              <span id="btnText">Register</span>
+              <span id="btnSpinner" class="visually-hidden"><i class="fa-solid fa-spinner fa-spin"></i> Please Wait...</span>
+            </button>
+          </div>
+        </form>
+
+      </div>
+    </div>
+  </div>
+
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+  <script>
+    const form = document.getElementById('registerForm');
+    const submitBtn = document.getElementById('submitBtn');
+    const btnText = document.getElementById('btnText');
+    const btnSpinner = document.getElementById('btnSpinner');
+
+    form.addEventListener('submit', function () {
+      submitBtn.disabled = true;
+      btnText.classList.add('visually-hidden');
+      btnSpinner.classList.remove('visually-hidden');
+    });
+  </script>
+</body>
+{% endblock %}

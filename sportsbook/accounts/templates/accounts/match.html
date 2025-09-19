@@ -1,0 +1,412 @@
+{% extends "base.html" %}
+{% load static %}
+{% load math_extras %}
+{% block content %}
+<link rel="stylesheet" href="{% static 'accounts/style.css' %}">
+<script src="{% static 'accounts/style1.js' %}"></script>
+<body class="home-body">
+    <div class="container match-div">
+        <h6 id="match_name">{{ live_score.match_name }}</h6>
+        <br><br>
+        {% if match.match_status == "UpComing" %}
+            <div>Match is Not Live Now.</div>
+        {% else %}
+            <div class="live-match">
+                <div class="score">
+                    <div id="team_name">{{ live_score.team_name }}</div>
+                    <div id="score">{{ live_score.score }} ({{ live_score.over }})</div>
+                </div>
+                <div class="main-message">
+                    <div id="main_message">{{ live_score.main_message }}</div>
+                </div>
+                <div class="crr">
+                    <div id="crr">{{ live_score.CRR }}</div>
+                    <div>{{ live_score.extra_message }}</div>
+                    <div id="extra_message1">{{ live_score.extra_message1 }}</div>
+                </div>
+            </div>
+            <br>
+            <br>
+            <div class="player">
+                <div>
+                    <div class="player-name" id="player-name-1">{{ live_score.batsman_1 }}</div>
+                    <div id="player-score-1">{{ live_score.batsman_1_score }}</div>
+                </div>
+                <div class="plus">+</div>
+                <div>
+                    <div class="player-name" id="player-name-2">{{ live_score.batsman_2 }}</div>
+                    <div id="player-score-2">{{ live_score.batsman_2_score }}</div>
+                </div>
+                <div class="ver-line"></div>
+                <div>
+                    <div class="player-name" id="bowler">{{ live_score.bowler }}</div>
+                    <div id="bowler-score">{{ live_score.bowler_score }}</div>
+                </div>
+            </div>
+        {% endif %}
+    </div>
+    {% if match.match_status != "Completed" %}
+    <div class="container bet-div">
+        <div class="winner-div">Winner (Incl. Super Over)</div>
+        <div class="hr-line"></div>
+        <div>
+            <div class="back-lay">
+                <div>Back</div>
+                <div>Lay</div>
+            </div>
+            <div class="team-bet">
+                <div class="team-1">
+                    <div class="team-1-name">
+                        {{ live_score.team1 }}
+                        {% if team1_bal != 0 %}
+                            {% if team1_bal > 0 %}
+                                <div style="color: #00821a;">+{{ team1_bal }}</div>
+                            {% else %}
+                                <div style="color: #ff0000;">{{ team1_bal }}</div>
+                            {% endif %}
+                        {% endif %}
+                    </div>
+                    <div class="odd-btn">
+                        {% if live_score.fav_team == live_score.team1 and match.match_status != "Completed"%}
+                            <button id="odd_1">{{ live_score.odd_1 }}</button>
+                            <button id="odd_2">{{ live_score.odd_2 }}</button>
+                        {% else %}
+                            <button disabled>--</button>
+                            <button disabled>--</button>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="team-2">
+                    <div class="team-2-name">
+                        {{ live_score.team2 }}
+                        {% if team2_bal != 0 %}
+                            {% if team2_bal > 0 %}
+                                <div style="color: #00821a;">+{{ team2_bal }}</div>
+                            {% else %}
+                                <div style="color: #ff0000;">{{ team2_bal }}</div>
+                            {% endif %}
+                        {% endif %}
+                    </div>
+                    <div class="odd-btn">
+                        {% if live_score.fav_team == live_score.team2 and match.match_status != "Completed" %}
+                            <button id="odd_1">{{ live_score.odd_1 }}</button>
+                            <button id="odd_2">{{ live_score.odd_2 }}</button>
+                        {% else %}
+                            <button disabled>--</button>
+                            <button disabled>--</button>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+
+
+    <div id="betModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h3>Place Your Bet</h3>
+
+            <form id="betForm1" class="bet-form" style="display:none;" method="POST" action="{% url 'bet_submit' %}">
+                {% csrf_token %}
+                {% if live_score.fav_team == live_score.team1 %}
+                    <input type="hidden" name="bet_team" value="Team1">
+                {% else %}
+                    <input type="hidden" name="bet_team" value="Team2">
+                {% endif %}
+                <input type="hidden" name="username" value="{{ account.username }}">
+                <input type="hidden" name="match_id" value="{{ match.match_id }}">
+                <div class="bet-field">
+                    <label>Team : </label>
+                    <input type="text" value="{{ live_score.fav_team }}" name="team" disabled>
+                </div>
+                <div class="bet-field">
+                    <label>Odds : </label>
+                    <input type="text" id="selected_odd_1" name="odd" disabled>
+                </div>
+                <div class="bet-field">
+                    <label>Type : </label>
+                    <input type="text" name="type" value="Back" disabled>
+                </div>
+                <div class="bet-field">
+                    <label>Bet Amount : </label>
+                    <input type="number" name="bet_amount" required min="100" placeholder="Enter bet amount" id="bet_amount_1" class="bet_amount">
+                    <p>min: 100</p>
+                </div>
+                <div class="bet-field">
+                    <label>Est. Payout : </label>
+                    <input type="number" name="win_amount" id="win_amount_1" class="win_amount" readonly>
+                </div>
+                <button type="submit" class="bet-btn">Place Bet</button>
+            </form>
+
+            <form id="betForm2" class="bet-form" style="display:none;" method="POST" action="{% url 'bet_submit' %}">
+                {% csrf_token %}
+                {% if live_score.fav_team == live_score.team1 %}
+                    <input type="hidden" name="bet_team" value="Team2">
+                {% else %}
+                    <input type="hidden" name="bet_team" value="Team1">
+                {% endif %}
+                <input type="hidden" name="username" value="{{ account.username }}">
+                <input type="hidden" name="match_id" value="{{ match.match_id }}">
+                <input type="hidden" name="win_amount" id="win_amount_2">
+                <div class="bet-field">
+                    <label>Team : </label>
+                    <input type="text" value="{{ live_score.fav_team }}" name="team" disabled>
+                </div>
+                <div class="bet-field">
+                    <label>Odds : </label>
+                    <input type="text" id="selected_odd_2" name="odd" disabled>
+                </div>
+                <div class="bet-field">
+                    <label>Type : </label>
+                    <input type="text" name="type" value="Lay" disabled>
+                </div>
+                <div class="bet-field">
+                    <label>Profit Amount : </label>
+                    <input type="number" name="profit_amount" required min="100" placeholder="Enter profit amount" id="profit_amount" class="bet_amount">
+                    <p>min: 100</p>
+                </div>
+                <div class="bet-field">
+                    <label>Bet Amount : </label>
+                    <input type="number" name="bet_amount" required id="bet_amount_2" class="win_amount" readonly>
+                </div>
+                <button type="submit" class="bet-btn">Place Bet</button>
+            </form>
+        </div>
+    </div>
+
+    
+
+    {% if bets %}
+        <div class="profit-loss">
+        {% if match.match_status == "Completed" %}
+            {% if match.winner_team == "Team1" %}
+                {% if team1_bal > 0 %}
+                    <div class="pro-lo">Profit : <div class="profit">+{{ team1_bal }}</div></div>
+                {% else %}
+                    <div class="pro-lo">Loss : <div class="loss">{{ team1_bal }}</div></div>
+                {% endif %}
+            {% elif match.winner_team == "Team2" %}
+                {% if team2_bal > 0 %}
+                    <div class="pro-lo">Profit : <div class="profit">+{{ team2_bal }}</div></div>
+                {% else %}
+                    <div class="pro-lo">Loss : <div class="loss">{{ team2_bal }}</div></div>
+                {% endif %}
+            {% endif %}
+        {% endif %}
+        </div>
+        
+        <h6>My Bets : </h6>
+        <div class="container">
+        <div class="table-wrap">
+        <div class="table-scroll">
+            <table aria-label="Sample 4-column table">
+            <thead>
+                <tr>
+                <th>BET ID</th>
+                <th>TEAM</th>
+                <th>ODDS</th>
+                <th>BET AMOUNT</th>
+                <th>WIN AMOUNT</th>
+                <th>STATUS</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for b in bets %}
+                    <tr>
+                    <td>{{ b.bet_id }}</td>
+                    {% if b.bet_team == "Team1" %}
+                        <td>{{ match.Team1 }}</td>
+                    {% else %}
+                        <td>{{ match.Team2 }}</td>
+                    {% endif %}
+                    <td>{{ b.win_amount|divide:b.bet_amount|floatformat:2 }}</td>
+                    <td>{{ b.bet_amount }}</td>
+                    <td>{{ b.win_amount }}</td>
+                    {% if b.bet_status == "Active" %}
+                        <td><div class="pending-box">Active</div></td>
+                    {% elif b.bet_status == "Settled" %}
+                        <td><div class="approved-box">Settled</div></td>
+                    {% endif %}
+                    </tr>
+                {% endfor %}
+            </tbody>
+            </table>
+        </div>
+        </div>
+        </div>
+    {% else %}
+        <br>
+        <div style="display: flex; justify-content: center; font-size: 15px;">You Haven't Placed Any Bet.</div>
+    {% endif %}
+
+    {% if messages %}
+    <div class="toast-container">
+        {% for message in messages %}
+        <div class="toast-message {{ message.tags }}">
+            {{ message }}
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+
+
+    <script>
+        const modal = document.getElementById("betModal");
+        const closeBtn = document.querySelector(".close");
+
+        const form1 = document.getElementById("betForm1");
+        const form2 = document.getElementById("betForm2");
+
+        const odd1Input = document.getElementById("selected_odd_1");
+        const betAmount1 = document.getElementById("bet_amount_1");
+        const winAmount1 = document.getElementById("win_amount_1");
+
+        const odd2Input = document.getElementById("selected_odd_2");
+        const betAmount2 = document.getElementById("bet_amount_2");
+        const winAmount2 = document.getElementById("win_amount_2");
+        const profitAmount2 = document.getElementById("profit_amount");
+
+        function bindOddButtons() {
+            document.querySelectorAll(".odd-btn button").forEach(btn => {
+                btn.onclick = function() {
+                    if(this.disabled) return;
+
+                    form1.style.display = "none";
+                    form2.style.display = "none";
+
+
+                    if(this.id === "odd_1") {
+                        odd1Input.value = ((parseInt(this.innerText)/100)+1).toFixed(2);
+                        form1.style.display = "block";
+                    } else if(this.id === "odd_2") {
+                        odd2Input.value = ((parseInt(this.innerText)/100)+1).toFixed(2);
+                        form2.style.display = "block";
+                    }
+
+                    modal.style.display = "flex";
+                };
+            });
+        }
+
+        betAmount1.addEventListener("input", function() {
+            winAmount1.value = parseInt(parseInt(this.value) * parseFloat(odd1Input.value));
+        });
+
+        profitAmount2.addEventListener("input", function() {
+            betAmount2.value = parseInt(((parseFloat(odd2Input.value)-1)*100) * (parseInt(this.value)/100))
+        });
+
+        profitAmount2.addEventListener("input", function() {
+            winAmount2.value = parseInt(parseInt(profitAmount2.value) + parseInt(betAmount2.value));
+        });
+
+        closeBtn.onclick = () => modal.style.display = "none";
+        window.onclick = e => { if(e.target == modal) modal.style.display = "none"; };
+
+        async function handleBetSubmit(form) {
+            const placeBtn = form.querySelector("button[type=submit]");
+            placeBtn.disabled = true;
+            placeBtn.innerText = "Placing...";
+
+            const formData = new FormData(form);
+
+            try {
+                const res = await fetch(form.action, {
+                    method: "POST",
+                    body: formData,
+                    headers: { "X-CSRFToken": "{{ csrf_token }}" }
+                });
+
+                const data = await res.json();
+
+                if (res.ok && data.success) {
+                    setTimeout(() => {
+                        modal.style.display = "none";
+                        window.location.reload();
+                        showToast("Bet placed Successfully", "success");
+                    }, 1000); 
+                } else {
+                    showToast(data.message || "Failed to place bet", "error");
+                    placeBtn.disabled = false;
+                    placeBtn.innerText = "Place Bet";
+                }
+            } catch (err) {
+                console.error(err);
+                showToast("Something went wrong", "error");
+                placeBtn.disabled = false;
+                placeBtn.innerText = "Place Bet";
+            }
+        }
+
+        form1.onsubmit = e => { e.preventDefault(); handleBetSubmit(form1); };
+        form2.onsubmit = e => { e.preventDefault(); handleBetSubmit(form2); };
+
+        function showToast(message, type="success") {
+            let container = document.querySelector(".toast-container");
+            if (!container) {
+                container = document.createElement("div");
+                container.className = "toast-container";
+                container.style.position = "fixed";
+                container.style.top = "20px";
+                container.style.right = "20px";
+                container.style.zIndex = "9999";
+                document.body.appendChild(container);
+            }
+
+            const toast = document.createElement("div");
+            toast.className = `toast-message ${type}`;
+            toast.style.background = type === "success" ? "#28a745" : "#dc3545";
+            toast.style.color = "white";
+            toast.style.padding = "10px 15px";
+            toast.style.marginTop = "10px";
+            toast.style.borderRadius = "8px";
+            toast.innerText = message;
+
+            container.appendChild(toast);
+            setTimeout(() => toast.remove(), 3000);
+        }
+
+        bindOddButtons();
+
+
+        function fetchLiveScore() {
+            fetch("{% url 'live_score_api' match.match_id %}")
+                .then(res => res.json())
+                .then(data => {
+                    document.getElementById("match_name").innerText = data.match_name;
+                    document.getElementById("team_name").innerText = data.team_name;
+                    document.getElementById("score").innerText = data.score + " (" + data.over + ")";
+                    document.getElementById("main_message").innerText = data.main_message;
+                    document.getElementById("crr").innerText = data.CRR;
+                    document.getElementById("player-name-1").innerText = data.batsman_1;
+                    document.getElementById("player-score-1").innerText = data.batsman_1_score;
+                    document.getElementById("player-name-2").innerText = data.batsman_2;
+                    document.getElementById("player-score-2").innerText = data.batsman_2_score;
+                    document.getElementById("bowler").innerText = data.bowler;
+                    document.getElementById("bowler-score").innerText = data.bowler_score;
+                    document.getElementById("extra_message1").innerText = data.extra_message1;
+                    document.getElementById("odd_1").innerText = data.odd_1;
+                    document.getElementById("odd_2").innerText = data.odd_2;
+
+                    bindOddButtons();
+                })
+                .catch(err => console.error(err));
+        }
+
+        window.onload = function() {
+            fetchLiveScore();
+            setInterval(fetchLiveScore, 1500);
+        };
+
+        setTimeout(() => {
+            document.querySelectorAll(".toast-message").forEach(el => el.remove());
+        }, 3000);
+
+    </script>
+</body>
+{% endblock content %}

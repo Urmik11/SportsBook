@@ -1,0 +1,201 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}Home - SportsBook{% endblock %}
+
+{% block content %}
+<link rel="stylesheet" href="{% static 'accounts/style.css' %}">
+<body class="home-body">
+
+    <form action="">
+        <div class="mb-3">
+            <label class="form-label">Search for Match:</label>
+            <div class="se">
+                <input type="text" name="searchMatch" class="form-control search-box" placeholder="Search For Matches"/>
+                <button type="submit" class="btn btn-primary">Search</button>
+            </div>
+        </div>
+    </form>
+    <p>Searching for: {{ searchTerm }}</p>
+    
+    
+    <ul class="nav nav-tabs" id="matchTabs" role="tablist">
+        <li class="nav-item" role="presentation">
+            <button class="nav-link active match-tab" id="live-tab" data-bs-toggle="tab" data-bs-target="#live" type="button" role="tab">Live</button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link match-tab" id="upcoming-tab" data-bs-toggle="tab" data-bs-target="#upcoming" type="button" role="tab">Upcoming</button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link match-tab" id="completed-tab" data-bs-toggle="tab" data-bs-target="#completed" type="button" role="tab">Completed</button>
+        </li>
+    </ul>
+
+    <div class="tab-content mt-3" id="matchTabsContent">
+
+        <div class="tab-pane fade show active" id="live" role="tabpanel">
+            {% if live_matches %}
+                <div class="matche">
+                    {% for match in live_matches %}
+                        <div class="card">
+                            <img class="card-img-top ma-img rounded" src="{{ match.img.url }}" />
+                            <div class="card-body">
+                                <a href="{% url 'matchs' match.match_id %}">
+                                    <h5 class="card-title fw-bold">{{ match.match_name }}</h5>
+                                </a>
+                                <p class="card-text">{{ match.date }} {{ match.time }}</p>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <p>No live matches found.</p>
+            {% endif %}
+        </div>
+
+        <div class="tab-pane fade" id="upcoming" role="tabpanel">
+            {% if upcoming_matches %}
+                <div class="matche">
+                    {% for match in upcoming_matches %}
+                        <div class="card">
+                            <img class="card-img-top ma-img rounded" src="{{ match.img.url }}" />
+                            <div class="card-body">
+                                <a href="{% url 'matchs' match.match_id %}">
+                                    <h5 class="card-title fw-bold">{{ match.match_name }}</h5>
+                                </a>
+                                <p class="card-text">{{ match.date }} {{ match.time }}</p>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <p>No upcoming matches found.</p>
+            {% endif %}
+        </div>
+
+        <div class="tab-pane fade" id="completed" role="tabpanel">
+            {% if completed_matches %}
+                <div class="matche">
+                    {% for match in completed_matches %}
+                        <div class="card">
+                            <img class="card-img-top ma-img rounded" src="{{ match.img.url }}" />
+                            <div class="card-body">
+                                <a href="{% url 'matchs' match.match_id %}">
+                                    <h5 class="card-title fw-bold">{{ match.match_name }}</h5>
+                                </a>
+                                <p class="card-text">{{ match.date }} {{ match.time }}</p>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <p>No completed matches found.</p>
+            {% endif %}
+        </div>
+    </div>
+
+
+
+        <div id="toast-container" style="
+        position: fixed;
+        top: 85px;
+        left: 30px;
+        width: 320px;
+        z-index: 9999;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;">
+    
+        {% for message in messages %}
+            {% if message.tags == "success" %}
+                <div class="toast-message" style="
+                    background: #173843;
+                    color: #d9dee0;
+                    font-weight: 500;
+                    font-size: 14px;
+                    border-radius: 6px;
+                    position: relative;
+                    box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+                    display: flex;
+                    align-items: center;
+                    overflow: hidden;
+                    min-height: 70px;">
+                    
+                    <div style="
+                        display: flex;
+                        justify-content: center;
+                        align-items: center;
+                        border-radius: 6px;
+                        width: 70px;
+                        height: 70px;
+                        background-color: #122D38;
+                        color: #0077E1;
+                        flex-shrink: 0;">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"
+                            xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                            <circle cx="12" cy="7" r="4" />
+                            <path d="M4 21c0-4 4-7 8-7s8 3 8 7" />
+                        </svg>
+                    </div>
+                    
+                    <div style="flex: 1; padding: 0 12px; display: flex; justify-content: space-between; align-items: center;">
+                        <span>{{ message }}</span>
+                        <span class="toast-close" style="
+                            cursor: pointer;
+                            font-size: 18px;
+                            margin-left: 12px;">&times;</span>
+                    </div>
+                    
+                    <div class="toast-progress" style="
+                        position: absolute;
+                        bottom: 0;
+                        left: 0;
+                        height: 3px;
+                        background: #586c7f;
+                        width: 100%;
+                        transform-origin: left;
+                        transform: scaleX(1);
+                        will-change: transform;">
+                    </div>
+                </div>
+            {% endif %}
+        {% endfor %}
+    </div>
+
+
+        <script>
+    document.addEventListener("DOMContentLoaded", function() {
+        const toasts = document.querySelectorAll("#toast-container .toast-message");
+
+        toasts.forEach(toast => {
+            const closeBtn = toast.querySelector(".toast-close");
+            const progress = toast.querySelector(".toast-progress");
+
+            const AUTO_CLOSE_DURATION = 4000;
+
+            closeBtn?.addEventListener("click", () => toast.remove());
+
+            let startTime = null;
+            function animate(timestamp) {
+                if (!startTime) startTime = timestamp;
+                const elapsed = timestamp - startTime;
+                const percent = Math.max(0, 1 - elapsed / AUTO_CLOSE_DURATION);
+
+                if (progress) {
+                    progress.style.transform = `scaleX(${percent})`;
+                }
+
+                if (elapsed < AUTO_CLOSE_DURATION) {
+                    requestAnimationFrame(animate);
+                }
+            }
+            requestAnimationFrame(animate);
+
+            setTimeout(() => {
+                toast.remove();
+            }, AUTO_CLOSE_DURATION);
+        });
+    });
+    </script>
+
+</body>
+{% endblock %}
