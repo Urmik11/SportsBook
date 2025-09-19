@@ -8,31 +8,31 @@
 
 ## 📌 Features:
 
-- **User Management:**
+👤 **User Management:**
   - **Secure register/login/logout.**
   - **Session-based authentication.**
 
-- **Account & Wallet:**
+💰 **Account & Wallet:**
   - **Balance management.**
   - **Deposit & withdrawal requests** with **admin approval.**
   - **Real-time balance updates** after bets.
 
-- **Betting System:**
+🎯 **Betting System:**
   - **Place bets on live matches.**
   - **Track active and settled bets.**
   - **Automatic payout** after match completion.
 
-- **Match Management:**
+📅 **Match Management:**
   - **Admin manages matches** (upcoming, active, completed).
   - **Live score updates** via **web scraping.**
   - **Team-wise betting statistics.**
 
-- **Admin Panel:**
+🛡 **Admin Panel:**
   - **Approve/reject deposits and withdrawals.**
   - **Settle matches and distribute winnings.**
   - **Complete oversight** of users, accounts, and bets.
 
-- **Security:**
+🔒 **Security:**
   - **Password hashing** and **custom authentication.**
   - **Middleware** to prevent caching sensitive pages.
   - **Validations** for deposits, withdrawals, and bets.
